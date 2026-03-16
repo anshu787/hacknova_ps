@@ -8,46 +8,46 @@ from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-# Comprehensive list of official Garak probes (v0.14.0)
-AVAILABLE_PROBES = [
-    {"id": "ansiescape", "name": "ANSI Escape", "desc": "Bypasses filtering with ANSI escape sequences"},
-    {"id": "apikey", "name": "API Key Leak", "desc": "Tests if the model leaks its own API keys"},
-    {"id": "atkgen", "name": "Adversarial Attack Gen", "desc": "Red-teaming LLM generating adaptive attacks"},
-    {"id": "audio", "name": "Audio Payloads", "desc": "Injections via simulated audio inputs"},
-    {"id": "av_spam_scanning", "name": "AV/Spam Signatures", "desc": "Attempts to trigger malware/spam filters"},
-    {"id": "badchars", "name": "Bad Characters", "desc": "Unicode perturbations (invisible, homoglyphs)"},
-    {"id": "continuation", "name": "Word Continuation", "desc": "Tests if model continues undesirable words"},
-    {"id": "dan", "name": "DAN & Jailbreaks", "desc": "Various 'Do Anything Now' jailbreak techniques"},
-    {"id": "divergence", "name": "Model Divergence", "desc": "Tests for repetition and token divergence"},
-    {"id": "doctor", "name": "Medical Guardrails", "desc": "Bypassing medical advice restrictions"},
-    {"id": "donotanswer", "name": "DoNotAnswer", "desc": "Prompts leading to irresponsible answers"},
-    {"id": "dra", "name": "Data Recovery", "desc": "Attempts to recover training data bits"},
-    {"id": "encoding", "name": "Encoding Injection", "desc": "Prompt injection via Base64, Hex, ROT13, etc."},
-    {"id": "exploitation", "name": "Code Exploitation", "desc": "SQL and Template injection in LLM code gen"},
-    {"id": "fileformats", "name": "File Formats", "desc": "Attacks using specific document formats"},
-    {"id": "fitd", "name": "Feedback Loop", "desc": "Attacks via iterative feedback loops"},
-    {"id": "glitch", "name": "Glitch Tokens", "desc": "Provokes unusual behavior with token edge cases"},
-    {"id": "goodside", "name": "Riley Goodside", "desc": "Classic and famous prompt injection patterns"},
-    {"id": "grandma", "name": "Grandma Exploit", "desc": "Social engineering via persona adoption"},
-    {"id": "latentinjection", "name": "Latent Injection", "desc": "Fact snippets and report-based injections"},
-    {"id": "leakreplay", "name": "Training Leakage", "desc": "Evaluates if model replays training data"},
-    {"id": "lmrc", "name": "LM Risk Cards", "desc": "Language Model Risk Cards framework probes"},
-    {"id": "malwaregen", "name": "Malware Generation", "desc": "Attempts to generate malicious scripts/code"},
-    {"id": "misleading", "name": "Misleading Claims", "desc": "Falsehood and misinformation support"},
-    {"id": "packagehallucination", "name": "Hallucinations", "desc": "Gets model to suggest non-existent packages"},
-    {"id": "phrasing", "name": "Tense Phrasing", "desc": "Attacks using past/future tense shifts"},
-    {"id": "promptinject", "name": "PromptInject", "desc": "Standardized prompt injection framework"},
-    {"id": "realtoxicityprompts", "name": "Toxicity", "desc": "Identity attacks and severe toxicity testing"},
-    {"id": "sata", "name": "SATA Attacks", "desc": "Self-Alignment with Theoretical Analysis"},
-    {"id": "smuggling", "name": "Prompt Smuggling", "desc": "Hiding instructions in data payloads"},
-    {"id": "snowball", "name": "Snowballing", "desc": "Complex questions meant to confuse logic"},
-    {"id": "suffix", "name": "Adversarial Suffix", "desc": "BEAST and GCG adversarial appendages"},
-    {"id": "tap", "name": "Model Hijacking (TAP)", "desc": "Targeted Adversarial Prompting hijacking"},
-    {"id": "test", "name": "Test Probes", "desc": "Internal Garak testing plugins"},
-    {"id": "topic", "name": "Topic Shifting", "desc": "Tests for controversial topic containment"},
-    {"id": "visual_jailbreak", "name": "Visual Jailbreak", "desc": "Injections via visual-reasoning proxies"},
-    {"id": "web_injection", "name": "Web/XSS Injection", "desc": "Cross-site scripting and data exfiltration"}
-]
+def _load_available_probes() -> List[Dict[str, str]]:
+    """Dynamically load probes from the garak library."""
+    try:
+        import garak._plugins
+        cache = garak._plugins.PluginCache.instance()
+        probes_cache = cache.get("probes", {})
+        
+        probes_dict = {}
+        # Iterate over all probe classes in the cache
+        for full_name, info in probes_cache.items():
+            if not info.get("active", True):
+                continue
+            
+            # Extract module name as the 'id' (e.g., 'dan' from 'probes.dan.Ablation_Dan_11_0')
+            parts = full_name.split(".")
+            if len(parts) < 2:
+                continue
+            
+            probe_id = parts[1]
+            if probe_id == "base":
+                continue
+                
+            if probe_id not in probes_dict:
+                probes_dict[probe_id] = {
+                    "id": probe_id,
+                    "name": probe_id.replace("_", " ").title(),
+                    "desc": info.get("description", "").split("\n")[0] if info.get("description") else f"Garak {probe_id} probes"
+                }
+        
+        return sorted(list(probes_dict.values()), key=lambda x: x["id"])
+    except Exception as e:
+        logger.error(f"Failed to dynamically load garak probes: {e}")
+        return [
+            {"id": "dan", "name": "Dan & Jailbreaks", "desc": "Various 'Do Anything Now' jailbreak techniques"},
+            {"id": "promptinject", "name": "PromptInject", "desc": "Standardized prompt injection framework"},
+            {"id": "web_injection", "name": "Web/XSS Injection", "desc": "Cross-site scripting and data exfiltration"}
+        ]
+
+# Dynamically populated list of Garak probes
+AVAILABLE_PROBES = _load_available_probes()
 
 class GarakScanner:
     def __init__(self, model_name: str, target_type: str = "huggingface.InferenceAPI", probes: List[str] = None, scan_id: str = None, log_callback=None):

@@ -20,6 +20,8 @@ app.conf.update(
     task_acks_late=True,
     worker_prefetch_multiplier=1,
     result_expires=3600 * 24,
+    worker_send_task_events=True,
+    task_send_sent_event=True,
 )
 
 logger = logging.getLogger(__name__)

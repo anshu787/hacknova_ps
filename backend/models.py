@@ -144,6 +144,8 @@ class ReconAsset(BaseModel):
     asset_type: AssetType = AssetType.subdomain
     source: List[str] = [] # ["amass", "subfinder"]
     description: Optional[str] = None
+    status_code: Optional[int] = None
+    screenshot_path: Optional[str] = None
     discovered_at: datetime = Field(default_factory=datetime.utcnow)
     scan_id: Optional[str] = None # Link to a specific recon job
 

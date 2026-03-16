@@ -18,12 +18,10 @@ import MobileScan from "./pages/MobileScan.jsx";
 import SimulationPage from "./pages/SimulationPage.jsx";
 import CredentialLeaks from "./pages/CredentialLeaks.jsx";
 import ThreatIntelligence from "./pages/ThreatIntelligence.jsx";
-import AgentWorkflow from "./pages/AgentWorkflow.jsx";
 import LLMScanner from "./pages/LLMScanner.jsx";
 
 const NAV_ITEMS = [
     { id: "dashboard", icon: "📊", label: "Dashboard", path: "/dashboard" },
-    { id: "agent", icon: "🤖", label: "Autonomous AI", path: "/agent" },
     { id: "llm", icon: "🧠", label: "LLM Scanner", path: "/llm" },
     { id: "intel", icon: "🌎", label: "Threat Intel", path: "/intel" },
     { id: "recon", icon: "🌍", label: "Attack Surface", path: "/recon" },
@@ -108,7 +106,6 @@ function InternalApp({ user, onLogout }) {
                     <Routes>
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="/dashboard" element={<Dashboard user={user} />} />
-                        <Route path="/agent" element={<AgentWorkflow user={user} />} />
                         <Route path="/llm" element={<LLMScanner user={user} />} />
                         <Route path="/intel" element={<ThreatIntelligence user={user} />} />
                         <Route path="/scan" element={<ScanPage user={user} />} />

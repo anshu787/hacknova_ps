@@ -6,7 +6,7 @@ from typing import Dict, Any
 logger = logging.getLogger(__name__)
 
 MOBSF_URL = os.getenv("MOBSF_URL", "http://localhost:8001")
-MOBSF_API_KEY = os.getenv("MOBSF_API_KEY", "52ec068eee942635382ee29c4e4898b671e0a090f9adb35137fe59ecf5181e53")
+MOBSF_API_KEY = os.getenv("MOBSF_API_KEY", "340dcba3757d749a48be405c665908b86ba74f391a0c20d4a0f5726e4b5cdf8f")
 
 class MobSFScanner:
     def __init__(self):
@@ -100,7 +100,7 @@ class MobSFScanner:
     def _parse_report(self, report: Dict[str, Any], file_hash: str) -> Dict[str, Any]:
         vulns = []
         
-        # Parse Manifest issues
+        # 1. Manifest Analysis
         manifest = report.get("manifest_analysis", [])
         if isinstance(manifest, list):
             for issue in manifest:
@@ -108,21 +108,62 @@ class MobSFScanner:
                     "title": issue.get("title", "Manifest Issue"),
                     "severity": self._map_severity(issue.get("stat", "info")),
                     "description": issue.get("desc", ""),
-                    "component": issue.get("name", "AndroidManifest.xml")
+                    "component": "AndroidManifest.xml"
                 })
         
-        # Basic counting of permissions
-        permissions = len(report.get("permissions", {}).keys())
+        # 2. Code Analysis (SAST)
+        code_analysis = report.get("code_analysis", {})
+        findings = code_analysis.get("findings", {})
+        if isinstance(findings, dict):
+            for key, info in findings.items():
+                vulns.append({
+                    "title": info.get("metadata", {}).get("description", key),
+                    "severity": self._map_severity(info.get("metadata", {}).get("severity", "info")),
+                    "description": info.get("metadata", {}).get("description", ""),
+                    "component": "Source Code Analysis"
+                })
+
+        # 3. Binary Analysis
+        binary_analysis = report.get("binary_analysis", [])
+        if isinstance(binary_analysis, list):
+            for issue in binary_analysis:
+                vulns.append({
+                    "title": issue.get("title", "Binary Issue"),
+                    "severity": self._map_severity(issue.get("stat", "info")),
+                    "description": issue.get("desc", ""),
+                    "component": issue.get("name", "Native Library")
+                })
+        
+        # Extracted Data
+        urls = report.get("urls", [])
+        emails = report.get("emails", [])
+        trackers = report.get("trackers", {}).get("detected_trackers", 0)
+        security_score = report.get("appsec", {}).get("security_score", 0)
         
         return {
             "vulnerabilities": vulns,
-            "permissions_analyzed": permissions,
-            "raw_report_id": file_hash
+            "permissions_analyzed": len(report.get("permissions", {}).keys()),
+            "urls": urls,
+            "emails": emails,
+            "trackers_count": trackers,
+            "security_score": security_score,
+            "raw_report_id": file_hash,
+            "app_info": {
+                "app_name": report.get("app_name"),
+                "package_name": report.get("package_name"),
+                "version": report.get("version_name", report.get("version", "N/A")),
+                "sdk": {
+                    "min": report.get("min_sdk"),
+                    "target": report.get("target_sdk"),
+                    "max": report.get("max_sdk")
+                }
+            }
         }
 
     def _map_severity(self, stat: str) -> str:
-        stat = stat.lower()
-        if stat in ["high", "danger"]: return "High"
+        if not stat: return "Info"
+        stat = str(stat).lower()
+        if stat in ["high", "danger", "critical"]: return "High"
         if stat in ["warning", "medium"]: return "Medium"
-        if stat in ["info", "secure"]: return "Low"
+        if stat in ["info", "secure", "low"]: return "Low"
         return "Info"

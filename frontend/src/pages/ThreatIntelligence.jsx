@@ -15,7 +15,7 @@ const ThreatIntelligence = () => {
         setError(null);
         try {
             const res = await api.get("/intel/feed");
-            setFeed(res.data.feed || []);
+            setFeed(res.feed || []);
         } catch (err) {
             console.error("Failed to fetch threat intel", err);
             setError("Could not load the global threat intelligence feed. Ensure the backend API is reachable.");

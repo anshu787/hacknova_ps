@@ -39,11 +39,16 @@ app = FastAPI(title="CyberGuard API", description="AI-Assisted Cybersecurity Pla
 # Using regex to allow all local development origins on any port
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+from fastapi.staticfiles import StaticFiles
+# Ensure static/screenshots exists
+os.makedirs("static/screenshots", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ─── DB ────────────────────────────────────────────────────────────────────────
 _mongo_client: Optional[AsyncIOMotorClient] = None
@@ -391,40 +396,38 @@ async def get_threat_intel_feed(current_user: str = Depends(auth_module.get_curr
     feed = threat_intel_feed.get_latest_threat_intel()
     return {"feed": feed}
 
-# ─── Autonomous Pentest Agent ───────────────────────────────────────────────
-
-@app.post("/agent/start")
-async def start_autonomous_agent(req: ReconRequest, background_tasks: BackgroundTasks, current_user: str = Depends(auth_module.get_current_user)):
+@app.post("/recon/leaks/scan")
+async def start_leak_scan(req: ReconRequest, background_tasks: BackgroundTasks, current_user: str = Depends(auth_module.get_current_user)):
     db = get_db()
-    from models import AgentJob
-    job = AgentJob(target=req.target_domain)
-    await db.agent_jobs.insert_one(job.dict())
+    from models import LeakReport
+    report = LeakReport(target_domain=req.target_domain, status="running")
+    await db.leak_jobs.insert_one(report.dict())
     
-    async def run_agent(target_ip: str, j_id: str):
-        import autonomous_agent
-        agent = autonomous_agent.AutonomousAgent(target_ip, j_id)
-        # Pass the database connection so the agent can log real-time thoughts to MongoDB
-        await agent.run(db)
+    async def run_leaks_background(domain: str, scan_id: str):
+        import leak_scanner
+        scanner = leak_scanner.LeakScanner(domain)
+        findings = await scanner.execute_scan()
+        await db.leak_jobs.update_one({"scan_id": scan_id}, {"$set": {"status": "completed", "findings": findings, "completed_at": datetime.utcnow().isoformat()}})
 
-    background_tasks.add_task(run_agent, req.target_domain, job.job_id)
-    return {"message": "Autonomous Pentest Agent deployed successfully.", "job_id": job.job_id}
+    background_tasks.add_task(run_leaks_background, req.target_domain, report.scan_id)
+    return {"message": "Leak scan initiated", "scan_id": report.scan_id}
 
-@app.get("/agent/jobs")
-async def get_agent_jobs(current_user: str = Depends(auth_module.get_current_user)):
+@app.get("/recon/leaks/jobs")
+async def get_leak_jobs(current_user: str = Depends(auth_module.get_current_user)):
     db = get_db()
-    jobs = await db.agent_jobs.find().sort("created_at", -1).to_list(100)
+    jobs = await db.leak_jobs.find().sort("created_at", -1).to_list(100)
     for j in jobs:
         j["_id"] = str(j["_id"])
     return {"jobs": jobs}
 
-@app.get("/agent/job/{job_id}")
-async def get_agent_job(job_id: str, current_user: str = Depends(auth_module.get_current_user)):
+@app.get("/recon/leaks/results/{scan_id}")
+async def get_leak_results(scan_id: str, current_user: str = Depends(auth_module.get_current_user)):
     db = get_db()
-    job = await db.agent_jobs.find_one({"job_id": job_id})
-    if not job:
-        raise HTTPException(status_code=404, detail="Agent job not found")
-    job["_id"] = str(job["_id"])
-    return {"job": job}
+    report = await db.leak_jobs.find_one({"scan_id": scan_id})
+    if not report:
+        raise HTTPException(status_code=404, detail="Leak report not found")
+    report["_id"] = str(report["_id"])
+    return {"report": report}
 
 # ─── NMAP API (v1) ───────────────────────────────────────────────────────────
 
@@ -641,6 +644,39 @@ async def get_llm_results(scan_id: str, current_user: str = Depends(auth_module.
     job["_id"] = str(job["_id"])
     return {"job": job}
 
+@app.get("/llm/{scan_id}/report")
+async def download_llm_report(scan_id: str, token: str = Depends(auth_module.oauth2_scheme)):
+    auth_module.decode_token(token)
+    db = get_db()
+    job = await db.llm_scan_jobs.find_one({"scan_id": scan_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="LLM scan not found")
+    if job.get("status") != "completed":
+        raise HTTPException(status_code=400, detail="Scan not completed yet")
+    
+    vulns = []
+    for r in job.get("results", []):
+        if r.get("status") == "FAIL":
+            vulns.append({
+                "name": f"Garak Probe Failure: {r.get('probe')}",
+                "severity": r.get("severity", "medium").lower() if r.get("severity") else "medium",
+                "cve_id": "",
+                "host": job.get("model_name", ""),
+                "port": "API",
+                "service": "LLM API",
+                "source": "Garak Scanner",
+                "description": f"Target Probe: {r.get('probe')}\nDetector triggered: {r.get('detector')}\nDetails: {r.get('msg', 'N/A')}",
+                "remediation": "Review the specific prompt injection or jailbreak technique causing this failure and implement input guardrails."
+            })
+            
+    import report_generator
+    pdf = report_generator.generate_pdf_report(
+        scan_id=scan_id, target=job.get("model_name", "LLM Model"),
+        vulnerabilities=vulns, graph_data=None, created_at=job.get("created_at"),
+    )
+    return Response(content=pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="cyberguard_llm_report_{scan_id[:8]}.pdf"'})
+
 # ─── Mobile Scan Endpoints ───────────────────────────────────────────────────
 
 @app.post("/mobile/scan")
@@ -691,6 +727,42 @@ async def get_mobile_results(scan_id: str, current_user: str = Depends(auth_modu
         raise HTTPException(status_code=404, detail="Mobile scan not found")
     job["_id"] = str(job["_id"])
     return {"job": job}
+
+@app.get("/mobile/{scan_id}/report")
+async def download_mobile_report(scan_id: str, token: str = Depends(auth_module.oauth2_scheme)):
+    auth_module.decode_token(token)
+    db = get_db()
+    job = await db.mobile_scans.find_one({"scan_id": scan_id})
+    if not job:
+        raise HTTPException(status_code=404, detail="Mobile scan not found")
+    if job.get("status") != "completed":
+        raise HTTPException(status_code=400, detail="Scan not completed yet")
+    
+    vulns = []
+    # Map MobSF issues to vulnerability schema
+    for file_path, issues_list in job.get("report", {}).items():
+        if isinstance(issues_list, list):
+            for issue in issues_list:
+                sev = issue.get("severity", "info").lower()
+                vulns.append({
+                    "name": issue.get("title", "Mobile Security Issue"),
+                    "severity": "critical" if sev == "high" else "high" if sev == "warning" else "info" if sev == "secure" else "medium",
+                    "cve_id": "",
+                    "host": job.get("filename", "App"),
+                    "port": "APK/IPA",
+                    "service": "Mobile App",
+                    "source": "MobSF Scanner",
+                    "description": f"File: {file_path}\nDescription: {issue.get('description', '')}",
+                    "remediation": "Review the code pattern and implement secure mobile coding guidelines."
+                })
+            
+    import report_generator
+    pdf = report_generator.generate_pdf_report(
+        scan_id=scan_id, target=job.get("filename", "Mobile App"),
+        vulnerabilities=vulns, graph_data=None, created_at=job.get("created_at"),
+    )
+    return Response(content=pdf, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="cyberguard_mobile_report_{scan_id[:8]}.pdf"'})
 
 # ─── Agents Endpoints ────────────────────────────────────────────────────────
 

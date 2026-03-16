@@ -15,10 +15,15 @@ const TaskMonitor = () => {
             const workerData = await api.request("GET", `${api.FLOWER_BASE}/workers`);
             const brokerData = await api.request("GET", `${api.FLOWER_BASE}/broker`);
 
-            setTasks(Object.values(data || {}));
+            if (data?.error) {
+                setError(data.error);
+                setTasks([]);
+            } else {
+                setTasks(Object.values(data || {}));
+                setError(null);
+            }
             setWorkers(workerData || {});
             setBroker(brokerData || null);
-            setError(null);
         } catch (err) {
             console.error("Task monitor polling error:", err);
             setError(err.message || "Could not connect to Flower service.");
@@ -112,20 +117,20 @@ const TaskMonitor = () => {
                                         <div style={{ fontSize: 40, marginBottom: 12 }}>📡</div>
                                         Awaiting task dispatch...
                                     </td>
-                                    end</tr>
+                                </tr>
                             )}
                             {tasks.map((task) => (
-                                <tr key={task.uuid}>
+                                <tr key={task?.uuid || Math.random()}>
                                     <td style={{ fontWeight: 700, color: "var(--text-primary)" }}>
                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                             <div style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)" }}></div>
-                                            {task.name?.split('.').pop()?.toUpperCase() || 'TASK'}
+                                            {task?.name?.split('.').pop()?.toUpperCase() || 'TASK'}
                                         </div>
                                     </td>
-                                    <td className="mono">{task.uuid.split('-')[0]}</td>
+                                    <td className="mono">{task?.uuid?.split('-')[0] || 'N/A'}</td>
                                     <td>
-                                        <span className={`status-pill status-${task.state?.toLowerCase() === 'success' ? 'completed' : task.state?.toLowerCase() === 'failure' ? 'failed' : 'running'}`}>
-                                            {task.state}
+                                        <span className={`status-pill status-${task?.state?.toLowerCase() === 'success' ? 'completed' : task?.state?.toLowerCase() === 'failure' ? 'failed' : 'running'}`}>
+                                            {task?.state || 'UNKNOWN'}
                                         </span>
                                     </td>
                                     <td>
@@ -134,7 +139,7 @@ const TaskMonitor = () => {
                                             background: "rgba(0,0,0,0.2)", padding: "4px 8px", borderRadius: 4,
                                             maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap"
                                         }}>
-                                            {task.args}
+                                            {task?.args || '[]'}
                                         </div>
                                     </td>
                                     <td className="mono" style={{ fontSize: 12 }}>

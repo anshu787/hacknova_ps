@@ -3,8 +3,14 @@ import asyncio
 import uuid
 from datetime import datetime
 
-MONGO_URL = "mongodb://localhost:27017"
-DB_NAME = "cyberguard"
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
+
+MONGO_URL = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+DB_NAME = os.getenv("MONGO_DB", "cyberguard")
 
 async def seed_demo_data():
     client = AsyncIOMotorClient(MONGO_URL)

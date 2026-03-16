@@ -16,7 +16,7 @@ const AttackSurface = () => {
     const fetchJobs = async () => {
         try {
             const res = await api.get("/recon/jobs");
-            setJobs(res.data.jobs);
+            setJobs(res.jobs);
         } catch (err) {
             console.error("Failed to fetch recon jobs", err);
         }
@@ -43,7 +43,7 @@ const AttackSurface = () => {
         setLoading(true);
         try {
             const res = await api.get(`/recon/results/${job.recon_id}`);
-            setAssets(res.data.assets);
+            setAssets(res.assets);
         } catch (err) {
             setError("Failed to fetch assets");
         } finally {
@@ -129,16 +129,13 @@ const AttackSurface = () => {
                             <table className="data-table">
                                 <thead>
                                     <tr>
-                                        <th>HOST / SUBDOMAIN</th>
-                                        <th>IP ADDRESSES</th>
-                                        <th>SOURCE</th>
-                                        <th>DISCOVERED</th>
+                                        <th>SUBDOMAIN</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {assets.length === 0 && (
                                         <tr>
-                                            <td colSpan="4" style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>
+                                            <td style={{ textAlign: "center", padding: 40, color: "var(--text-muted)" }}>
                                                 {loading ? "Loading assets..." : "No assets discovered for this target"}
                                             </td>
                                         </tr>
@@ -146,28 +143,6 @@ const AttackSurface = () => {
                                     {assets.map((asset, i) => (
                                         <tr key={i}>
                                             <td style={{ fontWeight: 600 }}>{asset.domain}</td>
-                                            <td className="mono" style={{ fontSize: 12 }}>
-                                                {asset.ip_addresses.length > 0 ? asset.ip_addresses.join(", ") : "-"}
-                                            </td>
-                                            <td>
-                                                <div style={{ display: "flex", gap: 5 }}>
-                                                    {asset.source.map(s => (
-                                                        <span key={s} style={{
-                                                            fontSize: 9,
-                                                            background: s === "amass" ? "var(--cyan)" : "var(--purple)",
-                                                            padding: "2px 6px",
-                                                            borderRadius: 4,
-                                                            color: "#fff",
-                                                            fontWeight: 700
-                                                        }}>
-                                                            {s.toUpperCase()}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </td>
-                                            <td style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                                                {new Date(asset.discovered_at).toLocaleTimeString()}
-                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

@@ -9,32 +9,61 @@ export default function ReportsPage() {
     const [success, setSuccess] = useState("");
 
     useEffect(() => {
-        api.listScans(50).then(r => {
-            const done = (r.scans || []).filter(s => s.status === "completed");
-            setScans(done);
+        Promise.all([
+            api.listScans(50).then(r => r.scans || []),
+            api.listLLMJobs(50).then(r => r.jobs || []),
+            api.listMobileScans(50).then(r => r.jobs || [])
+        ]).then(([nmapScans, llmJobs, mobileScans]) => {
+            const doneNmap = nmapScans.filter(s => s.status === "completed").map(s => ({
+                id: s.scan_id, target: s.target, type: "Network Scan", time: s.completed_at,
+                vulns: s.vuln_count || 0, icon: "📋", downloadFn: api.downloadReport
+            }));
+
+            const doneLLM = llmJobs.filter(s => s.status === "completed").map(s => {
+                const fails = (s.results || []).filter(r => r.status === "FAIL").length;
+                return {
+                    id: s.scan_id, target: s.model_name || "LLM Model", type: "LLM Scan", time: s.created_at || s.updated_at,
+                    vulns: fails, icon: "🤖", downloadFn: api.downloadLLMReport
+                };
+            });
+
+            const doneMobile = mobileScans.filter(s => s.status === "completed").map(s => {
+                let fails = 0;
+                for (const list of Object.values(s.report || {})) {
+                    if (Array.isArray(list)) fails += list.length;
+                }
+                return {
+                    id: s.scan_id, target: s.filename || "App", type: "Mobile Scan", time: s.created_at || s.updated_at,
+                    vulns: fails, icon: "📱", downloadFn: api.downloadMobileReport
+                };
+            });
+
+            const allScans = [...doneNmap, ...doneLLM, ...doneMobile].sort((a, b) => new Date(b.time) - new Date(a.time));
+            setScans(allScans);
+        }).catch(err => {
+            console.error(err);
         });
     }, []);
 
-    async function handleDownload(scanId, target) {
+    async function handleDownload(scan) {
         setError(""); setSuccess("");
-        setDownloading(scanId);
+        setDownloading(scan.id);
         try {
-            const blob = await api.downloadReport(scanId);
+            const blob = await scan.downloadFn(scan.id);
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.style.display = "none";
             a.href = url;
-            a.download = `cyberguard_report_${scanId.slice(0, 8)}.pdf`;
+            a.download = `cyberguard_${scan.type.replace(" ", "_").toLowerCase()}_${scan.id.slice(0, 8)}.pdf`;
             document.body.appendChild(a);
             a.click();
-            
-            // Clean up with a small delay
+
             setTimeout(() => {
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
             }, 100);
-            
-            setSuccess(`✅ Report downloaded for ${target}`);
+
+            setSuccess(`✅ Report downloaded for ${scan.target}`);
         } catch (err) {
             setError(`Failed to download report: ${err.message}`);
         } finally {
@@ -65,7 +94,7 @@ export default function ReportsPage() {
             ) : (
                 <div style={{ display: "grid", gap: 16 }}>
                     {scans.map(scan => (
-                        <div key={scan.scan_id} className="card" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 24 }}>
+                        <div key={scan.id} className="card" style={{ display: "grid", gridTemplateColumns: "1fr auto", alignItems: "center", gap: 24 }}>
                             <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
                                 {/* Icon */}
                                 <div style={{
@@ -73,35 +102,30 @@ export default function ReportsPage() {
                                     background: "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.1))",
                                     border: "1px solid var(--border)",
                                     display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
-                                }}>📋</div>
+                                }}>{scan.icon}</div>
 
                                 {/* Info */}
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: 16, marginBottom: 4 }}>
                                         {scan.target}
                                     </div>
-                                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                                        <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "var(--font-mono)", background: "var(--bg-secondary)", padding: "2px 6px", borderRadius: 4 }}>
+                                            {scan.type}
+                                        </span>
                                         <span style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
-                                            ID: {scan.scan_id?.slice(0, 12)}...
+                                            ID: {scan.id?.slice(0, 12)}...
                                         </span>
                                         <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                                            📅 {scan.completed_at ? new Date(scan.completed_at).toLocaleString() : "—"}
-                                        </span>
-                                        <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                                            🔍 {scan.scan_types?.join(", ")}
+                                            📅 {scan.time ? new Date(scan.time).toLocaleString() : "—"}
                                         </span>
                                     </div>
 
                                     {/* Vulnerability summary */}
                                     <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
                                         <span style={{ fontSize: 13, color: "var(--accent-light)", fontWeight: 600 }}>
-                                            {scan.vuln_count} findings
+                                            {scan.vulns} findings / issues
                                         </span>
-                                        {scan.description && (
-                                            <span style={{ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
-                                                — {scan.description}
-                                            </span>
-                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -110,16 +134,16 @@ export default function ReportsPage() {
                             <div style={{ display: "flex", gap: 10, flexDirection: "column", alignItems: "flex-end" }}>
                                 <button
                                     className="btn btn-primary"
-                                    onClick={() => handleDownload(scan.scan_id, scan.target)}
-                                    disabled={downloading === scan.scan_id}
+                                    onClick={() => handleDownload(scan)}
+                                    disabled={downloading === scan.id}
                                 >
-                                    {downloading === scan.scan_id ? (
+                                    {downloading === scan.id ? (
                                         <><div className="spinner" style={{ width: 16, height: 16 }} /> Generating...</>
                                     ) : (
                                         "⬇️ Download PDF"
                                     )}
                                 </button>
-                                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Includes vulnerabilities, CVEs, attack graph & mitigations</span>
+                                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Consolidated executive summary</span>
                             </div>
                         </div>
                     ))}

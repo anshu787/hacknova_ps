@@ -12,11 +12,17 @@ function authHeaders() {
 }
 
 export async function request(method, path, body = null, isBlob = false) {
+    const isFormData = body instanceof FormData;
     const opts = {
         method,
-        headers: { "Content-Type": "application/json", ...authHeaders() },
+        headers: { ...authHeaders() },
     };
-    if (body) opts.body = JSON.stringify(body);
+    if (!isFormData) {
+        opts.headers["Content-Type"] = "application/json";
+    }
+    if (body) {
+        opts.body = isFormData ? body : JSON.stringify(body);
+    }
     const resp = await fetch(`${API_BASE}${path}`, opts);
     if (!resp.ok) {
         const err = await resp.json().catch(() => ({ detail: resp.statusText }));
@@ -24,6 +30,14 @@ export async function request(method, path, body = null, isBlob = false) {
     }
     if (isBlob) return resp.blob();
     return resp.json();
+}
+
+export async function get(path, isBlob = false) {
+    return request("GET", path, null, isBlob);
+}
+
+export async function post(path, body) {
+    return request("POST", path, body);
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
@@ -95,6 +109,22 @@ export async function getAttackGraph(scanId) {
 
 export async function downloadReport(scanId) {
     return request("GET", `/scans/${scanId}/report`, null, true);
+}
+
+export async function listLLMJobs(limit = 20, skip = 0) {
+    return request("GET", `/llm/jobs?limit=${limit}&skip=${skip}`);
+}
+
+export async function downloadLLMReport(scanId) {
+    return request("GET", `/llm/${scanId}/report`, null, true);
+}
+
+export async function listMobileScans(limit = 20, skip = 0) {
+    return request("GET", `/mobile/jobs?limit=${limit}&skip=${skip}`);
+}
+
+export async function downloadMobileReport(scanId) {
+    return request("GET", `/mobile/${scanId}/report`, null, true);
 }
 
 export async function runDemoScan() {

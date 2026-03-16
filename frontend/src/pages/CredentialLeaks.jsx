@@ -16,7 +16,7 @@ const CredentialLeaks = () => {
     const fetchJobs = async () => {
         try {
             const res = await api.get("/recon/leaks/jobs");
-            setJobs(res.data.jobs);
+            setJobs(res.jobs || []);
         } catch (err) {
             console.error("Failed to fetch leak jobs", err);
         }
@@ -43,7 +43,7 @@ const CredentialLeaks = () => {
         setLoading(true);
         try {
             const res = await api.get(`/recon/leaks/results/${job.scan_id}`);
-            setFindings(res.data.report.findings || []);
+            setFindings(res.report?.findings || []);
         } catch (err) {
             setError("Failed to fetch leak findings");
             setFindings([]);
