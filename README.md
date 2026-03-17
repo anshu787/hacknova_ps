@@ -98,10 +98,10 @@ graph TD
     end
 
     subgraph Security_Tools
-        NMAP[Nmap Scanner]
-        MOBSF[MobSF Analyzer]
+        Network[Nmap Scanner]
+        Mobile[MobSF Analyzer]
         GARAK[Garak LLM Probe]
-        ACUNETIX[Acunetix DAST]
+        Web[Webs DAST]
     end
 
     subgraph AI_Core
