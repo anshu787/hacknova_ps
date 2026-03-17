@@ -9,7 +9,7 @@ CyberGuard is a next-generation, AI-driven cybersecurity platform designed to au
 
 ### 1. 📊 Centralized Security Dashboard
 A high-level command center providing a real-time snapshot of the organization's security posture, tracking active scans, critical vulnerabilities, and global threat levels.
-> ![Dashboard Screenshot](![Uploading image.png…]()
+> ![Dashboard Screenshot](<img width="1600" height="839" alt="image" src="https://github.com/user-attachments/assets/e4d7311f-c095-40ec-8d58-f281cd7a9178" />
 
 )
 
