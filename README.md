@@ -1,11 +1,7 @@
 # HACKNOVA Hackathon — CyberGuard
 ## AI-Assisted Cybersecurity Hub
 
-The AI-Powered Vulnerability Scanner is an intelligent cybersecurity platform designed to detect, analyze, and prioritize security vulnerabilities across web applications, APIs, mobile apps, and network systems. The system integrates multiple scanning tools such as Nmap, Nikto, and OpenVAS, along with a custom-built scanner, to provide comprehensive vulnerability detection across different layers of a system.
-
-What sets this platform apart is its AI-driven analysis layer powered by LangChain and large language models. Instead of generating complex technical reports, the system interprets scan results, explains vulnerabilities in simple terms, prioritizes risks, and provides actionable remediation suggestions through an interactive dashboard and chatbot interface.
-
-Additionally, the platform integrates threat intelligence sources such as the National Vulnerability Database and MITRE ATT&CK to enrich vulnerabilities with real-world context and attack patterns. By combining automated scanning, AI-powered insights, and user-friendly visualization, the system helps developers and organizations improve their security posture efficiently and proactively.
+CyberGuard is a next-generation, AI-driven cybersecurity platform designed to automate vulnerability assessment, threat intelligence, and attack surface management. Built for the **HACKNOVA Hackathon**, it combines industry-standard security tools with advanced Large Language Models (LLMs) to provide a "graph-first" view of organizational security.
 
 ---
 
@@ -13,31 +9,40 @@ Additionally, the platform integrates threat intelligence sources such as the Na
 
 ### 1. 📊 Centralized Security Dashboard
 A high-level command center providing a real-time snapshot of the organization's security posture, tracking active scans, critical vulnerabilities, and global threat levels.
-> ![Dashboard Screenshot](https://via.placeholder.com/800x400?text=CyberGuard+Dashboard+Preview)
+> ![Dashboard Screenshot](<img width="1600" height="839" alt="image" src="https://github.com/user-attachments/assets/ccfe386a-8d78-4d9c-aa86-c74a22c7df0c" />
+)
 
 ### 2. 🧠 LLM Scanner (AI-Security)
 Securing the intelligence itself. Uses Garak and specialized probes to test Large Language Models for jailbreaks, prompt injections, and data leakage.
-> ![LLM Scanner Screenshot](https://via.placeholder.com/800x400?text=LLM+Scanner+Preview)
+> ![LLM Scanner Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/2f356180-d63a-431e-8e96-4dfdcb1571c9" />
+)
 
 ### 3. 🌎 Global Threat Intelligence
 Continuous monitoring of NVD, MITRE, and Rapid7 feeds. Automatically correlates global CVE data with your specific assets to provide actionable alerts.
+> ![Global Threat Intelligence Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/96801753-395d-4e1b-8430-1ef773a5aead" />
+)
 
 ### 4. 🌍 Attack Surface Management (Recon)
 Deep reconnaissance mapping of subdomains, open ports, and running services. Provides a "hacker’s eye view" of the entire infrastructure.
-
+> ![Attack Surface Management Screenshot](<img width="1600" height="826" alt="image" src="https://github.com/user-attachments/assets/6dd61f58-85f5-4b7b-bf29-d821ef14b569" />
+)
 ### 5. 🕵️‍♂️ Credential Leak Monitoring
 Proactive monitoring of dark web and public data dumps to identify exposed corporate credentials before they are exploited.
-
+> ![Crednetial Leak Monitoring Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/6446cae7-c10e-4525-9b83-0b7cfd2ba67a" />
+)
 ### 6. 📱 Mobile Security Analysis
 Deep static and dynamic analysis (SAST/DAST) of APK/IPA files using MobSF integration, looking for hardcoded secrets and insecure coding patterns.
-
+> ![Mobile Security Analysis Screenshot](<img width="1600" height="837" alt="image" src="https://github.com/user-attachments/assets/52249c7a-fd4d-4951-b7ec-2003c08edd60" />
+)
 ### 7. 🕸️ Attack Graph Visualization
 Goes beyond flat lists. Visualizes potential attack paths from an external attacker to your most sensitive assets, helping prioritize remediation where it matters most.
-> ![Attack Graph Screenshot](https://via.placeholder.com/800x400?text=Attack+Graph+Visualization)
+> ![Attack Graph Screenshot](<img width="1600" height="832" alt="image" src="https://github.com/user-attachments/assets/2c6b4b81-18c9-4eab-8d03-a23aeca368f2" />
+)
 
 ### 8. 💬 AI Chat & RAG Assistant
 A context-aware security expert assistant powered by Retrieval-Augmented Generation (RAG). It has access to your specific report data and technical documentation to provide step-by-step remediation guidance.
-
+> ![Attack Graph Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/182b8aa6-a2f5-4719-b275-f35167c9a6c9" />
+)
 ---
 
 ## 🛠 Tech Stack
