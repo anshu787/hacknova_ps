@@ -15,34 +15,39 @@ A high-level command center providing a real-time snapshot of the organization's
 
 ### 2. 🧠 LLM Scanner (AI-Security)
 Securing the intelligence itself. Uses Garak and specialized probes to test Large Language Models for jailbreaks, prompt injections, and data leakage.
-> ![LLM Scanner Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/2f356180-d63a-431e-8e96-4dfdcb1571c9" />
+> ![LLM Scanner Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/26e73441-2241-4b3d-bf0e-eba708117e07" />
+
 )
 
 ### 3. 🌎 Global Threat Intelligence
 Continuous monitoring of NVD, MITRE, and Rapid7 feeds. Automatically correlates global CVE data with your specific assets to provide actionable alerts.
-> ![Global Threat Intelligence Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/96801753-395d-4e1b-8430-1ef773a5aead" />
+> ![Global Threat Intelligence Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/45bf7ce5-3780-4295-826f-4f829098f28d" />
+
 )
 
 ### 4. 🌍 Attack Surface Management (Recon)
 Deep reconnaissance mapping of subdomains, open ports, and running services. Provides a "hacker’s eye view" of the entire infrastructure.
-> ![Attack Surface Management Screenshot](<img width="1600" height="826" alt="image" src="https://github.com/user-attachments/assets/6dd61f58-85f5-4b7b-bf29-d821ef14b569" />
-)
+> ![Attack Surface Management Screenshot](<img width="1600" height="826" alt="image" src="https://github.com/user-attachments/assets/75e3806e-6a31-4ddc-b412-9bf78f50b6b0" />
+
 ### 5. 🕵️‍♂️ Credential Leak Monitoring
 Proactive monitoring of dark web and public data dumps to identify exposed corporate credentials before they are exploited.
-> ![Crednetial Leak Monitoring Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/6446cae7-c10e-4525-9b83-0b7cfd2ba67a" />
+> ![Crednetial Leak Monitoring Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/8f1832fb-fdbb-41aa-9a57-fbc1c8f9b2f2" />
+
 )
 ### 6. 📱 Mobile Security Analysis
 Deep static and dynamic analysis (SAST/DAST) of APK/IPA files using MobSF integration, looking for hardcoded secrets and insecure coding patterns.
-> ![Mobile Security Analysis Screenshot](<img width="1600" height="837" alt="image" src="https://github.com/user-attachments/assets/52249c7a-fd4d-4951-b7ec-2003c08edd60" />
+> ![Mobile Security Analysis Screenshot](<img width="1600" height="837" alt="image" src="https://github.com/user-attachments/assets/385ddaef-2352-4cb0-9396-76926c2d8eb7" />
+
 )
 ### 7. 🕸️ Attack Graph Visualization
 Goes beyond flat lists. Visualizes potential attack paths from an external attacker to your most sensitive assets, helping prioritize remediation where it matters most.
-> ![Attack Graph Screenshot](<img width="1600" height="832" alt="image" src="https://github.com/user-attachments/assets/2c6b4b81-18c9-4eab-8d03-a23aeca368f2" />
-)
+> ![Attack Graph Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/03c7411c-95f3-45df-9a08-e2450d156e0e" />
+
 
 ### 8. 💬 AI Chat & RAG Assistant
 A context-aware security expert assistant powered by Retrieval-Augmented Generation (RAG). It has access to your specific report data and technical documentation to provide step-by-step remediation guidance.
-> ![Attack Graph Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/182b8aa6-a2f5-4719-b275-f35167c9a6c9" />
+> ![Attack Graph Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/e4b2aa3c-e5af-459f-9687-94fa1fd1912f" />
+
 )
 ---
 
