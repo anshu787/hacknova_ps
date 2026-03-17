@@ -1,7 +1,11 @@
 # HACKNOVA Hackathon — CyberGuard
 ## AI-Assisted Cybersecurity Hub
 
-CyberGuard is a next-generation, AI-driven cybersecurity platform designed to automate vulnerability assessment, threat intelligence, and attack surface management. Built for the **HACKNOVA Hackathon**, it combines industry-standard security tools with advanced Large Language Models (LLMs) to provide a "graph-first" view of organizational security.
+The AI-Powered Vulnerability Scanner is an intelligent cybersecurity platform designed to detect, analyze, and prioritize security vulnerabilities across web applications, APIs, mobile apps, and network systems. The system integrates multiple scanning tools such as Nmap, Nikto, and OpenVAS, along with a custom-built scanner, to provide comprehensive vulnerability detection across different layers of a system.
+
+What sets this platform apart is its AI-driven analysis layer powered by LangChain and large language models. Instead of generating complex technical reports, the system interprets scan results, explains vulnerabilities in simple terms, prioritizes risks, and provides actionable remediation suggestions through an interactive dashboard and chatbot interface.
+
+Additionally, the platform integrates threat intelligence sources such as the National Vulnerability Database and MITRE ATT&CK to enrich vulnerabilities with real-world context and attack patterns. By combining automated scanning, AI-powered insights, and user-friendly visualization, the system helps developers and organizations improve their security posture efficiently and proactively.
 
 ---
 
