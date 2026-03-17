@@ -35,7 +35,8 @@ Real-time vulnerability research at your fingertips.
 - **API**: Directly integrates with the **NIST NVD API**.
 - **Data**: Fetches CVSS v3.1 scores, vector strings, and Exploit-DB references. 
 - **Knowledge Base**: Queries are enriched via the backend to provide better context than a raw NVD search.
-> ![CVE Lookup Screenshot](<img width="1600" height="826" alt="image" src="https://github.com/user-attachments/assets/fa6aea14-64aa-41d2-b298-f9e3bcca8675" />
+> ![CVE Lookup Screenshot](<img width="1600" height="826" alt="image" src="https://github.com/user-attachments/assets/133ff8b9-8f90-4987-ac04-59e3f11f75a3" />
+
 )
 
 
@@ -43,7 +44,8 @@ Real-time vulnerability research at your fingertips.
 Consolidated view of all findings across multiple scanners.
 - **Vulnerability Normalizer**: A custom Python engine that maps raw Nmap scripts and Acunetix JSON reports into a unified schema.
 - **MITRE ATT&CK Mapping**: Every finding is automatically tagged with its corresponding MITRE Tactic and Technique, providing a standard framework for mitigation.
-> ![Scan Results Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/4f7b2e85-c769-4611-8021-20ebc83b1698" />
+> ![Scan Results Screenshot](![Uploading image.png…]()
+
 
 
 ### 3. 🌎 Global Threat Intelligence
