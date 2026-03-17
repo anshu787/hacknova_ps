@@ -44,7 +44,8 @@ Real-time vulnerability research at your fingertips.
 Consolidated view of all findings across multiple scanners.
 - **Vulnerability Normalizer**: A custom Python engine that maps raw Nmap scripts and Acunetix JSON reports into a unified schema.
 - **MITRE ATT&CK Mapping**: Every finding is automatically tagged with its corresponding MITRE Tactic and Technique, providing a standard framework for mitigation.
-> ![Scan Results Screenshot](![Uploading image.png…]()
+> ![Scan Results Screenshot](<img width="1600" height="835" alt="image" src="https://github.com/user-attachments/assets/1cad919c-bf33-479d-97b4-2b69b71a2732" />
+)
 
 
 
@@ -90,7 +91,8 @@ A context-aware security expert assistant powered by Retrieval-Augmented Generat
 Enterprise-grade task management.
 - **Persistence**: MongoDB stores every task state (Pending, Running, Completed, Failed).
 - **Orchestration**: Seamlessly manage hundreds of concurrent scans across distributed workers.
-> ![Task Monitor Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/d41f7912-73f2-4758-9de7-318d0a7831c7" />
+> ![Task Monitor Screenshot](<img width="1600" height="830" alt="image" src="https://github.com/user-attachments/assets/d110c0ca-e690-4ea1-b1d0-ca15303ee786" />
+
 )
 
 ---
